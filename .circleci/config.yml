@@ -1,19 +1,33 @@
 version: 2.1
 orbs:
   python: circleci/python@3.0.0
-  aws-cli: circleci/aws-cli@5.4.1
 jobs:
-  build_and_test: # this can be any name you choose
-    executor: python/default # use the default executor defined within the orb
+  build_and_test:
+    executor: python/default
     steps:
-      - checkout # checkout source code
+      - checkout
       - python/install-packages:
           pkg-manager: pip
           pip-dependency-file: requirements.txt
       - run:
           name: Run tests
           command: python -m pytest
+
+  sts_demo:
+    executor: python/default
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pip
+          pip-dependency-file: requirements.txt
+      - run:
+          name: Demonstrate STS AssumeRoleWithWebIdentity
+          command: python sts_demo.py
+
 workflows:
   build_test_deploy:
     jobs:
       - build_and_test
+      - sts_demo:
+          requires:
+            - build_and_test
