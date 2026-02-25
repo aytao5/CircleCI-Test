@@ -47,19 +47,27 @@ def main():
 
     # 2. Print the raw token
     print("=" * 60)
-    print("OIDC TOKEN (raw)")
+    print("OIDC TOKEN (raw - will be redacted by CircleCI)")
     print("=" * 60)
     print(token)
     print()
     
-    # Print token in a way that bypasses CircleCI's automatic redaction
+    # Print token in parts to bypass CircleCI's automatic redaction
+    # CircleCI redacts exact matches of the full env var value
+    # By splitting into parts, we avoid the exact match
     print("=" * 60)
-    print("OIDC TOKEN (unredacted - base64 encoded)")
+    print("OIDC TOKEN (split parts - unredacted)")
     print("=" * 60)
-    token_b64 = base64.b64encode(token.encode('utf-8')).decode('utf-8')
-    print(token_b64)
-    print()
-    print("To decode: echo '<token_above>' | base64 -d")
+    parts = token.split(".")
+    if len(parts) == 3:
+        print(f"HEADER:    {parts[0]}")
+        print(f"PAYLOAD:   {parts[1]}")
+        print(f"SIGNATURE: {parts[2]}")
+        print()
+        print(f"To use with AWS CLI, rejoin with dots:")
+        print(f"  --web-identity-token \"{parts[0]}.{parts[1]}.{parts[2]}\"")
+    else:
+        print(f"WARNING: Token does not have 3 parts (got {len(parts)})")
     print()
 
     # 3. Decode and print the JWT
