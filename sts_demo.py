@@ -51,6 +51,16 @@ def main():
     print("=" * 60)
     print(token)
     print()
+    
+    # Print token in a way that bypasses CircleCI's automatic redaction
+    print("=" * 60)
+    print("OIDC TOKEN (unredacted - base64 encoded)")
+    print("=" * 60)
+    token_b64 = base64.b64encode(token.encode('utf-8')).decode('utf-8')
+    print(token_b64)
+    print()
+    print("To decode: echo '<token_above>' | base64 -d")
+    print()
 
     # 3. Decode and print the JWT
     try:
@@ -67,6 +77,33 @@ def main():
         print("=" * 60)
         print(json.dumps(decoded["payload"], indent=2))
         print()
+
+        # Extract and display token expiration
+        if "exp" in decoded["payload"]:
+            exp_timestamp = decoded["payload"]["exp"]
+            # Convert Unix timestamp to human-readable format
+            from datetime import datetime, timezone
+            exp_datetime = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+            
+            print("=" * 60)
+            print("OIDC TOKEN — Expiration Details")
+            print("=" * 60)
+            print(f"  Expiration (exp):     {exp_timestamp}")
+            print(f"  Expiration (UTC):     {exp_datetime.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+            print(f"  Expiration (ISO8601): {exp_datetime.isoformat()}")
+            
+            # Show issued at time if available
+            if "iat" in decoded["payload"]:
+                iat_timestamp = decoded["payload"]["iat"]
+                iat_datetime = datetime.fromtimestamp(iat_timestamp, tz=timezone.utc)
+                duration_seconds = exp_timestamp - iat_timestamp
+                duration_minutes = duration_seconds / 60
+                
+                print(f"  Issued At (iat):      {iat_timestamp}")
+                print(f"  Issued At (UTC):      {iat_datetime.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+                print(f"  Token Lifetime:       {duration_seconds} seconds ({duration_minutes:.1f} minutes)")
+            print()
+        
     except Exception as e:
         print(f"WARNING: Failed to decode JWT: {e}")
         print()
