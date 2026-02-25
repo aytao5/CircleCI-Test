@@ -21,7 +21,7 @@ jobs:
           pkg-manager: pip
           pip-dependency-file: requirements.txt
       - run:
-          name: Demonstrate STS AssumeRoleWithWebIdentity
+          name: Demonstrate STS AssumeRoleWithWebIdentity and Custom Claims
           command: python sts_demo.py
 
 workflows:
