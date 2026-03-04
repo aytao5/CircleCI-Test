@@ -117,14 +117,23 @@ def main():
         print()
 
     # 4. Call STS AssumeRoleWithWebIdentity
+    STS_REGION = "ca-central-1"
+    STS_ENDPOINT = f"https://sts.{STS_REGION}.amazonaws.com"
+    
     print("=" * 60)
     print(f"Calling STS AssumeRoleWithWebIdentity")
+    print(f"  STS Endpoint:     {STS_ENDPOINT}")
+    print(f"  STS Region:       {STS_REGION}")
     print(f"  RoleArn:          {ROLE_ARN}")
     print(f"  RoleSessionName:  {SESSION_NAME}")
     print("=" * 60)
     print()
 
-    client = boto3.client("sts", region_name="us-east-1")
+    client = boto3.client(
+        "sts",
+        region_name=STS_REGION,
+        endpoint_url=STS_ENDPOINT,
+    )
 
     try:
         response = client.assume_role_with_web_identity(
