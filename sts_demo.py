@@ -189,12 +189,27 @@ def main():
         )
 
         print("=" * 60)
-        print("✅ SUCCESS — Custom Claims Role Assumed")
+        print("✅ SUCCESS — Custom Claims STS AssumeRoleWithWebIdentity — FULL RESPONSE")
+        print("=" * 60)
+
+        def serialize(obj):
+            if hasattr(obj, "isoformat"):
+                return obj.isoformat()
+            raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+
+        print(json.dumps(response, indent=2, default=serialize))
+        print()
+
+        print("=" * 60)
+        print("✅ SUCCESS — Custom Claims Assumed Role Details")
         print("=" * 60)
         print(f"  Target Role:    {CUSTOM_CLAIM_ROLE_ARN}")
         print(f"  AssumedRoleId:  {response['AssumedRoleUser']['AssumedRoleId']}")
         print(f"  Arn:            {response['AssumedRoleUser']['Arn']}")
         print(f"  AccessKeyId:    {response['Credentials']['AccessKeyId']}")
+        print(f"  SecretAccessKey:{response['Credentials']['SecretAccessKey']}")
+        print(f"  SessionToken:   {response['Credentials']['SessionToken']}")
+        print(f"  Expiration:     {response['Credentials']['Expiration']}")
         print()
         print("  This confirms the IAM role trust policy accepts the project-id")
         print("  claim (oidc.circleci.com/project-id) from the CircleCI OIDC token.")
